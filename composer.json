@@ -1,0 +1,47 @@
+{
+    "name": "kangbabi/transactions",
+    "description": "Gracefully handle an exception from your action.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "KangBabi\\Transactions\\": "src/",
+            "KangBabi\\Transactions\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "kang-babi",
+            "email": "joshuabuban.benosa@bicol-u.edu.ph"
+        }
+    ],
+    "scripts": {
+        "lint": "./vendor/bin/pint -v --ansi",
+        "refactor": "./vendor/bin/rector process --ansi",
+        "pest": "./vendor/bin/pest --color=always",
+        "test": [
+          "./vendor/bin/pint --test --ansi",
+          "./vendor/bin/rector --dry-run --ansi",
+          "./vendor/bin/phpstan analyse --ansi",
+          "./vendor/bin/pest --coverage --color=always"
+        ],
+        "apply": [
+          "@lint",
+          "@refactor"
+        ]
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^8.0"
+    },
+    "require-dev": {
+        "rector/rector": "^2.0",
+        "laravel/pint": "^1.22",
+        "pestphp/pest": "^3.8"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}

@@ -1,0 +1,18 @@
+#!usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use KangBabi\Transactions\Transaction;
+
+require 'vendor/autoload.php';
+
+echo Transaction::start()
+  ->try(fn() =>  throw new RuntimeException('runtime'))
+  ->catch(RuntimeException::class, fn() => 'catch')
+  ->finally(function () {
+    echo 'finally';
+  })
+  ->run();
+
+echo PHP_EOL;

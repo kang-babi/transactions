@@ -1,0 +1,9 @@
+parameters:
+    level: max
+
+    phpVersion: 80313
+
+    treatPhpDocTypesAsCertain: false
+
+    paths:
+        - src
