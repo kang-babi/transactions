@@ -11,10 +11,24 @@
     },
     "authors": [
         {
-            "name": "kang-babi",
+            "name": "Joshua Benosa",
             "email": "joshuabuban.benosa@bicol-u.edu.ph"
         }
     ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^8.0"
+    },
+    "require-dev": {
+        "rector/rector": "^2.0",
+        "laravel/pint": "^1.22",
+        "pestphp/pest": "^3.8"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
     "scripts": {
         "lint": "./vendor/bin/pint -v --ansi",
         "refactor": "./vendor/bin/rector process --ansi",
@@ -29,19 +43,5 @@
           "@lint",
           "@refactor"
         ]
-    },
-    "minimum-stability": "stable",
-    "require": {
-        "php": "^8.0"
-    },
-    "require-dev": {
-        "rector/rector": "^2.0",
-        "laravel/pint": "^1.22",
-        "pestphp/pest": "^3.8"
-    },
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
     }
 }
