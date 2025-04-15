@@ -99,11 +99,11 @@ echo $result; // Outputs: Caught LogicException: Logic error!
 
 ## Key Methods
 
-- Transaction::start(): Creates a new transaction instance.
-- try(Closure $try): Defines the main logic to execute.
-- catch(string $exception, Closure $catch): Handles specific exception types.
-- finally(Closure $finally): Defines a block that always executes after the try block.
-- run(): Executes the transaction and returns the result.
+- `Transaction::start()`: Creates a new transaction instance.
+- `try(Closure $try)`: Defines the main logic to execute.
+- `catch(string $exception, Closure $catch)`: Handles specific exception types.
+- `finally(Closure $finally)`: Defines a block that always executes after the try block.
+- `run()`: Executes the transaction and returns the result.
 
 ## Notes
 
