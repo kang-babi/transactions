@@ -7,6 +7,7 @@ namespace KangBabi\Transactions;
 use Closure;
 use Throwable;
 
+use function array_key_exists;
 use function call_user_func;
 
 /**
