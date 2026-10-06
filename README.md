@@ -170,6 +170,10 @@ vendor/bin/pint --test
 vendor/bin/phpstan analyse
 ```
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release notes.
+
 ## License
 
 Released under the [MIT license](LICENSE).
