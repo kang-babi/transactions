@@ -18,6 +18,9 @@ use function call_user_func;
  *
  * This class does not manage database transactions, report exceptions, or
  * normalize responses. Those responsibilities belong to the callbacks.
+ *
+ * @template TTryResult
+ * @template TCatchResult
  */
 final class Transaction
 {
@@ -25,7 +28,7 @@ final class Transaction
     private Closure $try;
 
     /**
-     * @var array<class-string<Throwable>, Closure(Throwable): mixed>
+     * @var array<class-string<Throwable>, Closure>
      */
     private array $catch = [];
 
@@ -34,15 +37,21 @@ final class Transaction
 
     /**
      * Return value of the main callback or the matching catch handler.
+     *
      */
     private mixed $evaluation;
 
     /**
      * Create a new workflow without executing any callbacks.
+     *
+     * @return self<never, never>
      */
-    public static function start(): static
+    public static function start(): self
     {
-        return new self();
+        /** @var self<never, never> $transaction */
+        $transaction = new self();
+
+        return $transaction;
     }
 
     /**
@@ -50,9 +59,13 @@ final class Transaction
      *
      * The callback receives no arguments and its return value becomes the result.
      *
-     * @param Closure(): mixed $try
+     * @template TNewResult
+     *
+     * @param Closure(): TNewResult $try
+     * @phpstan-self-out self<TNewResult, TCatchResult>
+     * @return self<TNewResult, TCatchResult>
      */
-    public function try(Closure $try): static
+    public function try(Closure $try): self
     {
         $this->try = $try;
 
@@ -66,10 +79,15 @@ final class Transaction
      * result. Registering the same class again replaces its previous handler.
      * Exceptions thrown by the handler propagate without invoking other handlers.
      *
-     * @param class-string<Throwable> $exception
-     * @param Closure(Throwable): mixed $catch
+     * @template TException of Throwable
+     * @template TNewResult
+     *
+     * @param class-string<TException> $exception
+     * @param Closure(TException): TNewResult $catch
+     * @phpstan-self-out self<TTryResult, TCatchResult|TNewResult>
+     * @return self<TTryResult, TCatchResult|TNewResult>
      */
-    public function catch(string $exception, Closure $catch): static
+    public function catch(string $exception, Closure $catch): self
     {
         $this->catch[$exception] = $catch;
 
@@ -98,7 +116,7 @@ final class Transaction
      * A main callback must be configured with try() first. Each call executes
      * the workflow again. Cleanup runs before the result is returned.
      *
-     * @return mixed The main callback's or matching catch handler's return value.
+     * @return TTryResult|TCatchResult The main callback's or matching catch handler's return value.
      *
      * @throws Throwable When an exception has no exact handler, a handler or
      *                   cleanup callback throws, or the main callback is unset.
@@ -119,6 +137,9 @@ final class Transaction
             call_user_func($this->finally);
         }
 
-        return $this->evaluation;
+        /** @var TTryResult|TCatchResult $result */
+        $result = $this->evaluation;
+
+        return $result;
     }
 }
