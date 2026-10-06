@@ -7,24 +7,38 @@ namespace KangBabi\Transactions;
 use Closure;
 use Throwable;
 
+use function call_user_func;
+
+/**
+ * Execute callbacks through a fluent try/catch workflow with optional cleanup.
+ *
+ * Configure the main callback with try() before calling run(). Catch handlers
+ * match exact exception classes; parent classes and interfaces do not match.
+ * The result is the return value of the main callback or its matching handler.
+ *
+ * This class does not manage database transactions, report exceptions, or
+ * normalize responses. Those responsibilities belong to the callbacks.
+ */
 final class Transaction
 {
+    /** @var Closure(): mixed */
     private Closure $try;
 
     /**
-     * @var array<string, Closure> $catch - Collection of catchable exceptions.
+     * @var array<class-string<Throwable>, Closure(Throwable): mixed>
      */
     private array $catch = [];
 
+    /** @var (Closure(): void)|null */
     private ?Closure $finally = null;
 
     /**
-     * Result of the evaluation of the try block.
+     * Return value of the main callback or the matching catch handler.
      */
     private mixed $evaluation;
 
     /**
-     * Start a transaction.
+     * Create a new workflow without executing any callbacks.
      */
     public static function start(): static
     {
@@ -32,7 +46,11 @@ final class Transaction
     }
 
     /**
-     * The main code to be executed.
+     * Set the main callback, replacing any previously configured callback.
+     *
+     * The callback receives no arguments and its return value becomes the result.
+     *
+     * @param Closure(): mixed $try
      */
     public function try(Closure $try): static
     {
@@ -42,9 +60,14 @@ final class Transaction
     }
 
     /**
-     * Catch an exception type.
+     * Register a handler for an exact exception class.
      *
-     * @param class-string $exception
+     * The handler receives the thrown instance and its return value becomes the
+     * result. Registering the same class again replaces its previous handler.
+     * Exceptions thrown by the handler propagate without invoking other handlers.
+     *
+     * @param class-string<Throwable> $exception
+     * @param Closure(Throwable): mixed $catch
      */
     public function catch(string $exception, Closure $catch): static
     {
@@ -54,7 +77,13 @@ final class Transaction
     }
 
     /**
-     * Add statements that will run regardless of outcome.
+     * Set the cleanup callback, replacing any previously configured callback.
+     *
+     * Runs only after the main callback or a matching catch handler completes
+     * successfully. Unlike PHP's finally block, it is skipped when an unhandled
+     * exception or a handler exception propagates. Its return value is ignored.
+     *
+     * @param Closure(): void $finally
      */
     public function finally(Closure $finally): static
     {
@@ -64,7 +93,15 @@ final class Transaction
     }
 
     /**
-     * Execute the transaction.
+     * Execute the configured callbacks and return the main or handled result.
+     *
+     * A main callback must be configured with try() first. Each call executes
+     * the workflow again. Cleanup runs before the result is returned.
+     *
+     * @return mixed The main callback's or matching catch handler's return value.
+     *
+     * @throws Throwable When an exception has no exact handler, a handler or
+     *                   cleanup callback throws, or the main callback is unset.
      */
     public function run(): mixed
     {
